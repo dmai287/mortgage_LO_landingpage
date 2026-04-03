@@ -83,6 +83,8 @@ type CopyShape = {
     newsDescription: string;
     aboutTitle: string;
     aboutDescription: string;
+    blueprintTitle: string;
+    blueprintDescription: string;
   };
   brand: {
     name: string;
@@ -93,6 +95,8 @@ type CopyShape = {
     loanOptions: string;
     marketNews: string;
     aboutMe: string;
+    resources: string;
+    blueprint: string;
     checkOptions: string;
     callLaura: string;
   };
@@ -110,6 +114,34 @@ type CopyShape = {
     ctaBody: string;
     primaryCta: string;
     secondaryCta: string;
+  };
+  blueprint: {
+    heroEyebrow: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    benefits: string[];
+    form: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      labels: {
+        fullName: string;
+        email: string;
+      };
+      placeholders: {
+        fullName: string;
+        email: string;
+      };
+      submit: string;
+      submitting: string;
+    };
+    success: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      back: string;
+    };
   };
   home: {
     heroBadge: string;
@@ -913,7 +945,7 @@ function getPageFromUrl(): PageKey {
   return 'home';
 }
 
-function getResultCountText(locale: Locale, count: number) {
+function getResultCountText(count: number) {
   return count === 1
     ? copy.en.loanPage.resultCount.singular
     : copy.en.loanPage.resultCount.plural.replace('{count}', String(count));
@@ -921,7 +953,7 @@ function getResultCountText(locale: Locale, count: number) {
 
 export default function MortgageLandingPage() {
   const [locale, setLocale] = useState<Locale>('en');
-  const [currentPage, setCurrentPage] = useState<PageKey>('home');
+  const [currentPage, setCurrentPage] = useState<PageKey>(getPageFromUrl);
   const [loanFilter, setLoanFilter] = useState<LoanFilterKey>('all');
   const [selectedPostSlug, setSelectedPostSlug] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormState>({
@@ -1003,7 +1035,6 @@ export default function MortgageLandingPage() {
   }
 
   function switchLocale(nextLocale: Locale) {
-    if (nextLocale === locale) return;
     setError('');
     setFormData((prev) => {
       const currentGoals = copy[locale].home.form.loanGoals;
@@ -1378,7 +1409,7 @@ export default function MortgageLandingPage() {
               <div className="mt-8">
                 <h3 className="text-lg font-semibold text-[#142235]">What you'll get:</h3>
                 <ul className="mt-4 space-y-3">
-                  {t.blueprint.benefits.map((benefit) => (
+                  {t.blueprint.benefits.map((benefit: string) => (
                     <li key={benefit} className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-[#8B7355] mt-0.5 flex-shrink-0" />
                       <span className="text-sm leading-6 text-[#5B6472]">{benefit}</span>
@@ -1452,7 +1483,8 @@ export default function MortgageLandingPage() {
                     className="h-full w-full object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = 'flex';
                     }}
                   />
                   <div className="flex h-full w-full items-center justify-center text-white/60" style={{ display: 'none' }}>
@@ -1472,7 +1504,7 @@ export default function MortgageLandingPage() {
           </div>
         </section>
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <LoanFilterBar title={t.loanPage.filterTitle} labels={t.loanPage.filterLabels} current={loanFilter} resultCountText={getResultCountText(locale, filteredLoanCards.length)} onChange={setLoanFilter} />
+          <LoanFilterBar title={t.loanPage.filterTitle} labels={t.loanPage.filterLabels} current={loanFilter} resultCountText={getResultCountText(filteredLoanCards.length)} onChange={setLoanFilter} />
           <div className="grid gap-6 lg:grid-cols-2">
             {filteredLoanCards.map((card, index) => <LoanOptionCard key={`${card.title}-${locale}-${loanFilter}`} card={card} index={index} />)}
           </div>
