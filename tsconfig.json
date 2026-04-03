@@ -22,5 +22,4 @@
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
-}</content>
-<parameter name="filePath">c:\Users\V133280\Mortgage\tsconfig.json
+}
