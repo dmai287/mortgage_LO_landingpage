@@ -13,7 +13,6 @@ import {
   Clock3,
   FileCheck2,
   Home,
-  Languages,
   MapPin,
   Newspaper,
   Phone,
@@ -798,15 +797,6 @@ function SectionTitle({ eyebrow, title, subtitle, light = false }: { eyebrow: st
   );
 }
 
-function LanguageSwitcher({ locale, onChange }: { locale: Locale; onChange: (nextLocale: Locale) => void }) {
-  return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-[#FBF7F0] p-1">
-      <Languages className="ml-2 h-4 w-4 text-[#8B7355]" />
-      <button type="button" onClick={() => onChange('en')} aria-pressed={locale === 'en'} className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${focusRing} ${locale === 'en' ? 'bg-[#142235] text-white' : 'text-[#5B6472]'}`}>US</button>
-    </div>
-  );
-}
-
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -945,17 +935,17 @@ function getPageFromUrl(): PageKey {
   return 'home';
 }
 
-function getResultCountText(count: number) {
+function getResultCountText(localeCopy: CopyShape, count: number) {
   return count === 1
-    ? copy.en.loanPage.resultCount.singular
-    : copy.en.loanPage.resultCount.plural.replace('{count}', String(count));
+    ? localeCopy.loanPage.resultCount.singular
+    : localeCopy.loanPage.resultCount.plural.replace('{count}', String(count));
 }
 
 export default function MortgageLandingPage() {
   const blueprintPdfUrl = `${import.meta.env.BASE_URL}Laura_Bui_Homebuyer_Blueprint.pdf`;
   const loanHeroImageUrl = `${import.meta.env.BASE_URL}loan-hero-image.jpg`;
 
-  const [locale, setLocale] = useState<Locale>('en');
+  const t = copy.en;
   const [currentPage, setCurrentPage] = useState<PageKey>(getPageFromUrl);
   const [loanFilter, setLoanFilter] = useState<LoanFilterKey>('all');
   const [selectedPostSlug, setSelectedPostSlug] = useState<string | null>(null);
@@ -963,7 +953,7 @@ export default function MortgageLandingPage() {
     fullName: '',
     email: '',
     phone: '',
-    loanGoal: copy.en.home.form.loanGoals[0],
+    loanGoal: t.home.form.loanGoals[0],
     timeline: '',
     zipCode: '',
     details: '',
@@ -986,8 +976,6 @@ export default function MortgageLandingPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [resourcesDropdownOpen]);
-
-  const t = copy[locale];
 
   const isValid = useMemo(() => validateForm(formData, t) === '', [formData, t]);
 
@@ -1035,20 +1023,6 @@ export default function MortgageLandingPage() {
 
   function updateField<K extends keyof FormState>(name: K, value: FormState[K]) {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function switchLocale(nextLocale: Locale) {
-    setError('');
-    setFormData((prev) => {
-      const currentGoals = copy[locale].home.form.loanGoals;
-      const nextGoals = copy[nextLocale].home.form.loanGoals;
-      const currentIndex = Math.max(currentGoals.indexOf(prev.loanGoal), 0);
-      return { ...prev, loanGoal: nextGoals[currentIndex] ?? nextGoals[0] };
-    });
-    setLocale(nextLocale);
-    try {
-      window.localStorage.setItem('laura-bui-locale', nextLocale);
-    } catch {}
   }
 
   function navigateToPage(nextPage: PageKey) {
@@ -1507,9 +1481,9 @@ export default function MortgageLandingPage() {
           </div>
         </section>
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <LoanFilterBar title={t.loanPage.filterTitle} labels={t.loanPage.filterLabels} current={loanFilter} resultCountText={getResultCountText(filteredLoanCards.length)} onChange={setLoanFilter} />
+          <LoanFilterBar title={t.loanPage.filterTitle} labels={t.loanPage.filterLabels} current={loanFilter} resultCountText={getResultCountText(t, filteredLoanCards.length)} onChange={setLoanFilter} />
           <div className="grid gap-6 lg:grid-cols-2">
-            {filteredLoanCards.map((card, index) => <LoanOptionCard key={`${card.title}-${locale}-${loanFilter}`} card={card} index={index} />)}
+            {filteredLoanCards.map((card, index) => <LoanOptionCard key={`${card.title}-${loanFilter}`} card={card} index={index} />)}
           </div>
           <div className="mt-10 rounded-[32px] border border-[#E7DECF] bg-[linear-gradient(180deg,#FBF7F0_0%,#F3E7D2_100%)] p-8 shadow-sm shadow-[#D8CBB6]/10">
             <p className="text-sm leading-7 text-[#5B6472]">{t.loanPage.disclaimer}</p>
@@ -1573,9 +1547,9 @@ export default function MortgageLandingPage() {
             <p className="mt-1 max-w-[220px] text-sm leading-6 text-[#5B6472]">{t.home.fastCard.description}</p>
           </div>
               <div className="overflow-hidden rounded-[32px] border border-[#E7DECF] bg-white shadow-2xl shadow-[#C8A96B]/15">
-                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80" alt={locale === 'en' ? 'Beautiful Bay Area style home exterior' : 'Mặt tiền một ngôi nhà đẹp theo phong cách Bay Area'} className="h-[280px] w-full object-cover sm:h-[340px]" />
+                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80" alt="Beautiful Bay Area style home exterior" className="h-[280px] w-full object-cover sm:h-[340px]" />
                 <div className="grid gap-4 p-5 sm:grid-cols-[1.05fr_0.95fr] sm:p-6">
-                  <div className="overflow-hidden rounded-[24px] bg-[#F4E8D3]"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80" alt={locale === 'en' ? 'Professional portrait placeholder for Laura Bui' : 'Ảnh chân dung mẫu cho Laura Bui'} className="h-full min-h-[260px] w-full object-cover" /></div>
+                  <div className="overflow-hidden rounded-[24px] bg-[#F4E8D3]"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80" alt="Professional portrait placeholder for Laura Bui" className="h-full min-h-[260px] w-full object-cover" /></div>
                   <div className="rounded-[24px] bg-[linear-gradient(180deg,#142235_0%,#1F3552_100%)] p-6 text-white">
                     <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#E8C98A]"><Sparkles className="h-4 w-4" />{t.home.meetLaura.eyebrow}</p>
                     <h3 className="mt-5 text-2xl font-semibold">{t.home.meetLaura.title}</h3>
@@ -1609,7 +1583,7 @@ export default function MortgageLandingPage() {
                 <div className="mt-8 space-y-4">{t.home.fastSection.steps.map((item) => <div key={item.step} className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="flex items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E8C98A] text-sm font-semibold text-[#142235]">{item.step}</div><div><p className="text-base font-semibold text-white">{item.title}</p><p className="mt-1 text-sm leading-6 text-white/75">{item.description}</p></div></div></div>)}</div>
               </div>
               <div className="relative">
-                <div className="overflow-hidden rounded-[28px] bg-white/10 p-3 backdrop-blur"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80" alt={locale === 'en' ? 'Interior of a bright modern home' : 'Nội thất một ngôi nhà hiện đại sáng sủa'} className="h-[360px] w-full rounded-[22px] object-cover" /></div>
+                <div className="overflow-hidden rounded-[28px] bg-white/10 p-3 backdrop-blur"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80" alt="Interior of a bright modern home" className="h-[360px] w-full rounded-[22px] object-cover" /></div>
                 <div className="absolute bottom-6 left-6 max-w-[260px] rounded-3xl bg-white p-5 text-[#142235] shadow-xl shadow-black/10"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8B7355]">{t.home.fastSection.spotlightEyebrow}</p><p className="mt-2 text-2xl font-semibold">{t.home.fastSection.spotlightTitle}</p><p className="mt-2 text-sm leading-6 text-[#5B6472]">{t.home.fastSection.spotlightDescription}</p></div>
               </div>
             </div>
@@ -1628,7 +1602,7 @@ export default function MortgageLandingPage() {
         </section>
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div className="overflow-hidden rounded-[32px] border border-[#E7DECF] bg-white shadow-xl shadow-[#C8A96B]/10"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80" alt={locale === 'en' ? 'Modern home with landscaping' : 'Ngôi nhà hiện đại với cảnh quan đẹp'} className="h-full min-h-[420px] w-full object-cover" /></div>
+            <div className="overflow-hidden rounded-[32px] border border-[#E7DECF] bg-white shadow-xl shadow-[#C8A96B]/10"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80" alt="Modern home with landscaping" className="h-full min-h-[420px] w-full object-cover" /></div>
             <div>
               <SectionTitle eyebrow={t.home.proof.eyebrow} title={t.home.proof.title} subtitle={t.home.proof.subtitle} />
               <div className="mt-10 grid gap-6">{t.home.proof.testimonials.map((item) => <div key={item.name} className="rounded-[28px] border border-[#E7DECF] bg-white p-6 shadow-sm shadow-[#D8CBB6]/10"><div className="flex gap-1 text-[#C8A96B]">{Array.from({ length: 5 }).map((_, index) => <Star key={`${item.name}-${index}`} className="h-4 w-4 fill-current" />)}</div><p className="mt-4 text-sm leading-7 text-[#5B6472]">“{item.quote}”</p><p className="mt-5 text-sm font-semibold text-[#142235]">{item.name}</p></div>)}</div>
@@ -1697,7 +1671,9 @@ export default function MortgageLandingPage() {
     return (
       <main className="min-h-screen bg-[linear-gradient(180deg,#F7F2EA_0%,#EFE3CC_100%)] px-4 py-20 text-[#142235] sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl rounded-[32px] border border-[#E7DECF] bg-white p-10 shadow-xl shadow-[#C8A96B]/15">
-          <div className="mb-6 flex items-center justify-between gap-4"><div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#8B7355]">{t.thankYou.eyebrow}</p></div><LanguageSwitcher locale={locale} onChange={switchLocale} /></div>
+          <div className="mb-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#8B7355]">{t.thankYou.eyebrow}</p>
+          </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight">{t.thankYou.title}</h1>
           <p className="mt-4 text-lg leading-8 text-[#5B6472]">{t.thankYou.description}</p>
           <div className="mt-8 rounded-3xl bg-[linear-gradient(180deg,#FBF7F0_0%,#F3E7D2_100%)] p-6"><p className="font-semibold">{t.thankYou.stepsTitle}</p><ul className="mt-4 list-disc space-y-2 pl-5 text-[#5B6472]">{t.thankYou.steps.map((step) => <li key={step}>{step}</li>)}</ul></div>
