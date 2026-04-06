@@ -952,6 +952,9 @@ function getResultCountText(count: number) {
 }
 
 export default function MortgageLandingPage() {
+  const blueprintPdfUrl = `${import.meta.env.BASE_URL}Laura_Bui_Homebuyer_Blueprint.pdf`;
+  const loanHeroImageUrl = `${import.meta.env.BASE_URL}loan-hero-image.jpg`;
+
   const [locale, setLocale] = useState<Locale>('en');
   const [currentPage, setCurrentPage] = useState<PageKey>(getPageFromUrl);
   const [loanFilter, setLoanFilter] = useState<LoanFilterKey>('all');
@@ -1107,7 +1110,7 @@ export default function MortgageLandingPage() {
 
       // Immediate PDF download
       const link = document.createElement('a');
-      link.href = '/Laura_Bui_Homebuyer_Blueprint.pdf';
+      link.href = blueprintPdfUrl;
       link.download = 'Laura_Bui_Homebuyer_Blueprint.pdf';
       document.body.appendChild(link);
       link.click();
@@ -1394,7 +1397,7 @@ export default function MortgageLandingPage() {
                 <h3 className="text-lg font-semibold text-[#142235] mb-4">Preview the Blueprint</h3>
                 <div className="relative rounded-[16px] border border-[#E7DECF] bg-white shadow-xl shadow-[#C8A96B]/15 overflow-hidden -mx-4 md:-mx-8">
                   <iframe
-                    src="/Laura_Bui_Homebuyer_Blueprint.pdf#view=FitH&page=1"
+                    src={`${blueprintPdfUrl}#view=FitH&page=1`}
                     className="w-full h-80 border-0"
                     title="Blueprint Preview"
                   />
@@ -1478,7 +1481,7 @@ export default function MortgageLandingPage() {
               <div className="relative">
                 <div className="aspect-[4/3] overflow-hidden rounded-[24px] bg-gradient-to-br from-[#C8A96B]/20 to-[#8B7355]/20 shadow-2xl">
                   <img
-                    src="/loan-hero-image.jpg"
+                    src={loanHeroImageUrl}
                     alt="Modern home with mortgage documents"
                     className="h-full w-full object-cover"
                     onError={(e) => {
